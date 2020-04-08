@@ -29,14 +29,14 @@ if (canvas.getContext) {
 }
 
 function moveSnake() {
-  if(boundaryWillExceed()) {
+  var newSnakeHead = getNewSnakeHead();
+
+  if(boundaryWillExceed() || selfCollide(newSnakeHead)) {
     return;
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawApple();
-
-  var newSnakeHead = getNewSnakeHead();
 
   if (apples[0] !== undefined && newSnakeHead.x === apples[0].x && newSnakeHead.y === apples[0].y) {
     eatApple();
@@ -45,7 +45,7 @@ function moveSnake() {
   }
 
   drawSnake();
-  updateSnakePosition();
+  updateSnakePosition(newSnakeHead);
 }
 
 function boundaryWillExceed() {
@@ -57,6 +57,18 @@ function boundaryWillExceed() {
 
   if (snakeHead.y < 0 || snakeHead.y >= canvas.height) {
     return true;
+  }
+
+  return false;
+}
+
+function selfCollide(newSnakeHead) {
+  for (let index = 0; index < snake.length; index++) {
+    const snakePart = snake[index];
+
+    if (newSnakeHead.x === snakePart.x && newSnakeHead.y === snakePart.y) {
+      return true;
+    }
   }
 
   return false;
@@ -91,9 +103,7 @@ function drawSnake() {
   });
 }
 
-function updateSnakePosition() {
-  var newSnakeHead = getNewSnakeHead();
-
+function updateSnakePosition(newSnakeHead) {
   snake.unshift(newSnakeHead);
   snake.pop();
 }
