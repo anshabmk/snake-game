@@ -21,7 +21,9 @@ if (canvas.getContext) {
     { x: 10, y: 10 },
   ];
 
-  var apples = [{ x: 30, y: 50 }];
+  var apples = [];
+
+  addNewApple();
 
   setInterval(moveSnake, 100);
 }
@@ -39,7 +41,7 @@ function moveSnake() {
   if (apples[0] !== undefined && newSnakeHead.x === apples[0].x && newSnakeHead.y === apples[0].y) {
     eatApple();
     snake.unshift(newSnakeHead);
-    setTimeout(placeNewApple, 500);
+    setTimeout(addNewApple, 500);
   }
 
   drawSnake();
@@ -68,8 +70,15 @@ function drawApple() {
   });
 }
 
-function placeNewApple() {
-  
+function addNewApple() {
+  x = getRandomInt(canvas.width / w) * w;
+  y = getRandomInt(canvas.height / h) * h;
+
+  apples.push({ x: x, y: y });
+}
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
 }
 
 function drawSnake() {
