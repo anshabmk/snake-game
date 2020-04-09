@@ -29,8 +29,6 @@ if (canvas.getContext) {
 }
 
 function moveSnake() {
-  console.log('move snake');
-
   if (boundaryExceeded()) {
     clearInterval(moveSnakeInterval);
     return;
