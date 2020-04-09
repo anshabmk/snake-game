@@ -25,20 +25,23 @@ if (canvas.getContext) {
 
   addNewApple();
 
-  setInterval(moveSnake, 100);
+  var moveSnakeInterval = setInterval(moveSnake, 100);
 }
 
 function moveSnake() {
-  if(boundaryWillExceed()) {
+  console.log('move snake');
+
+  if (boundaryExceeded()) {
+    clearInterval(moveSnakeInterval);
     return;
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawApple();
 
-  var newSnakeHead = getNewSnakeHead();
+  const newSnakeHead = getNewSnakeHead();
 
-  if (apples[0] !== undefined && newSnakeHead.x === apples[0].x && newSnakeHead.y === apples[0].y) {
+  if (reachedApple(newSnakeHead)) {
     eatApple();
     snake.unshift(newSnakeHead);
     setTimeout(addNewApple, 500);
@@ -46,30 +49,37 @@ function moveSnake() {
 
   drawSnake();
 
-  if (selfCollide(newSnakeHead)) {
+  if (selfCollided()) {
+    clearInterval(moveSnakeInterval);
     return;
   }
 
   updateSnakePosition(newSnakeHead);
 }
 
-function boundaryWillExceed() {
-  var snakeHead = snake[0];
+function reachedApple(newSnakeHead) {
+  return apples[0] !== undefined && newSnakeHead.x === apples[0].x && newSnakeHead.y === apples[0].y;
+}
 
-  if (snakeHead.x < 0 || snakeHead.x >= canvas.width) {
+function boundaryExceeded() {
+  var snakeHeadToBeDrawn = snake[0];
+
+  if (snakeHeadToBeDrawn.x < 0 || snakeHeadToBeDrawn.x >= canvas.width) {
     return true;
   }
 
-  if (snakeHead.y < 0 || snakeHead.y >= canvas.height) {
+  if (snakeHeadToBeDrawn.y < 0 || snakeHeadToBeDrawn.y >= canvas.height) {
     return true;
   }
 
   return false;
 }
 
-function selfCollide(newSnakeHead) {
-  for (let index = 0; index < snake.length; index++) {
-    const snakePart = snake[index];
+function selfCollided() {
+  const newSnakeHead = getNewSnakeHead();
+
+  for (let i = 0; i < snake.length; i++) {
+    const snakePart = snake[i];
 
     if (newSnakeHead.x === snakePart.x && newSnakeHead.y === snakePart.y) {
       return true;
