@@ -29,14 +29,14 @@ if (canvas.getContext) {
 }
 
 function moveSnake() {
-  var newSnakeHead = getNewSnakeHead();
-
-  if(boundaryWillExceed() || selfCollide(newSnakeHead)) {
+  if(boundaryWillExceed()) {
     return;
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawApple();
+
+  var newSnakeHead = getNewSnakeHead();
 
   if (apples[0] !== undefined && newSnakeHead.x === apples[0].x && newSnakeHead.y === apples[0].y) {
     eatApple();
@@ -45,6 +45,11 @@ function moveSnake() {
   }
 
   drawSnake();
+
+  if (selfCollide(newSnakeHead)) {
+    return;
+  }
+
   updateSnakePosition(newSnakeHead);
 }
 
