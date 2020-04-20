@@ -1,6 +1,8 @@
 var canvas = document.getElementById('gameCanvas');
 
 if (canvas.getContext) {
+  setHighScore();
+
   var ctx = canvas.getContext('2d');
 
   var w = 10;
@@ -22,10 +24,19 @@ if (canvas.getContext) {
   ];
 
   var apples = [];
+  var score = 0;
 
   addNewApple();
 
   var moveSnakeInterval = setInterval(moveSnake, 100);
+}
+
+function setHighScore() {
+  if (localStorage.getItem('highScore')) {
+    return;
+  } else {
+    localStorage.setItem('highScore', '0');
+  }
 }
 
 function moveSnake() {
@@ -41,6 +52,7 @@ function moveSnake() {
 
   if (reachedApple(newSnakeHead)) {
     eatApple();
+    updateScore();
     snake.unshift(newSnakeHead);
     setTimeout(addNewApple, 500);
   }
@@ -147,6 +159,14 @@ function eatApple() {
   apple = apples.pop();
 
   ctx.clearRect(apple.x, apple.y, w, h);
+}
+
+function updateScore() {
+  score += 10;
+
+  if (score > localStorage.getItem('highScore')) {
+    localStorage.setItem('highScore', score);
+  }
 }
 
 function movementInSameAxis(keyCode) {
