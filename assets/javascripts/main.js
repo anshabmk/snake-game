@@ -1,5 +1,15 @@
+'use strict';
+
 var gameMenu = document.getElementById('gameMenu');
+var gameOverElement = document.getElementById('gameOver');
+
 var moveSnakeInterval;
+
+function restartGame() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  gameOverElement.style.display = 'none';
+}
 
 function startGame() {
   gameMenu.style.display = 'none';
@@ -69,7 +79,7 @@ function setHighScore() {
 
 function moveSnake() {
   if (boundaryExceeded()) {
-    clearInterval(moveSnakeInterval);
+    gameOver();
     return;
   }
 
@@ -88,11 +98,20 @@ function moveSnake() {
   drawSnake();
 
   if (selfCollided()) {
-    clearInterval(moveSnakeInterval);
+    gameOver();
     return;
   }
 
   updateSnakePosition(newSnakeHead);
+}
+
+function gameOver() {
+  clearInterval(moveSnakeInterval);
+  showGameOverScreen();
+}
+
+function showGameOverScreen() {
+  gameOverElement.style.display = 'block';
 }
 
 function reachedApple(newSnakeHead) {
@@ -136,8 +155,8 @@ function drawApple() {
 }
 
 function addNewApple() {
-  x = getRandomInt(canvas.width / w) * w;
-  y = getRandomInt(canvas.height / h) * h;
+  let x = getRandomInt(canvas.width / w) * w;
+  let y = getRandomInt(canvas.height / h) * h;
 
   apples.push({ x: x, y: y });
 }
@@ -184,7 +203,7 @@ function getNewSnakeHead() {
 }
 
 function eatApple() {
-  apple = apples.pop();
+  const apple = apples.pop();
 
   ctx.clearRect(apple.x, apple.y, w, h);
 }
