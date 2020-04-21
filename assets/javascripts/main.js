@@ -1,3 +1,31 @@
+var gameMenu = document.getElementById('gameMenu');
+var moveSnakeInterval;
+
+function startGame() {
+  gameMenu.style.display = 'none';
+
+  moveSnakeInterval = setInterval(moveSnake, 100);
+
+  document.onkeydown = function (event) {
+    var keyCode = event.keyCode;
+
+    var directionKeyCodes = [
+      directions.LEFT,
+      directions.RIGHT,
+      directions.UP,
+      directions.DOWN,
+    ];
+
+    if (directionKeyCodes.includes(keyCode)) {
+      if (movementInSameAxis(keyCode)) {
+        return;
+      }
+
+      direction = keyCode;
+    }
+  }
+}
+
 var canvas = document.getElementById('gameCanvas');
 
 if (canvas.getContext) {
@@ -27,8 +55,8 @@ if (canvas.getContext) {
   var score = 0;
 
   addNewApple();
-
-  var moveSnakeInterval = setInterval(moveSnake, 100);
+  drawApple();
+  drawSnake();
 }
 
 function setHighScore() {
@@ -180,24 +208,5 @@ function whichAxis(directionKeyCode) {
     return axes.X;
   } else {
     return axes.Y;
-  }
-}
-
-document.onkeydown = function (event) {
-  var keyCode = event.keyCode;
-
-  var directionKeyCodes = [
-    directions.LEFT,
-    directions.RIGHT,
-    directions.UP,
-    directions.DOWN,
-  ];
-
-  if (directionKeyCodes.includes(keyCode)) {
-    if (movementInSameAxis(keyCode)) {
-      return;
-    }
-
-    direction = keyCode;
   }
 }
