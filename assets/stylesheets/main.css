@@ -85,7 +85,8 @@ canvas {
   border: 1px solid black;
 }
 
-.menu {
+.menu,
+.game-over {
   position: absolute;
   top: 33.33%;
   left: 33.33%;
@@ -94,6 +95,10 @@ canvas {
   margin: 0 auto;
   padding: 30px;
   text-align: center;
+}
+
+.game-over {
+  display: none;
 }
 
 a {
