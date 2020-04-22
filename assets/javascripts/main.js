@@ -1,5 +1,9 @@
 'use strict';
 
+function checkBrowserSupport() {
+  if (!canvas.getContext) alert('Incompatible browser');
+}
+
 var canvas = document.getElementById('gameCanvas');
 var ctx = this.canvas.getContext('2d');
 var allowKeyPress = false;
@@ -14,31 +18,42 @@ var directions = {
   DOWN: 40,
 };
 
-var direction = this.directions.RIGHT;
-
-var snake = [
-  { x: 30, y: 10 },
-  { x: 20, y: 10 },
-  { x: 10, y: 10 },
-];
-
-var apples = [];
-var score = 0;
+var currentState = getInitialState();
 var gameOverElement = document.getElementById('gameOver');
 
-setHighScore();
-initGame();
+addNewApple();
+drawApple();
+drawSnake();
 
-function checkBrowserSupport() {
-  if (!canvas.getContext) alert('Incompatible browser');
+function getInitialState() {
+  function getInitialSnake() {
+    let snake = [
+      { x: 30, y: 10 },
+      { x: 20, y: 10 },
+      { x: 10, y: 10 },
+    ];
+
+    return snake;
+  }
+
+  let state = {
+    direction: directions.RIGHT,
+    snake: getInitialSnake(),
+    apples: [],
+    score: 0,
+  }
+
+  return state;
 }
 
-function setHighScore() {
-  if (localStorage.getItem('highScore')) {
-    return;
-  } else {
-    localStorage.setItem('highScore', '0');
-  }
+function setHighScore(value) {
+  localStorage.setItem('highScore', value);
+}
+
+function getHighScore() {
+  if (!localStorage.getItem('highScore')) setHighScore(currentState.score)
+
+  return localStorage.getItem('highScore');
 }
 
 function startGame() {
@@ -53,29 +68,15 @@ function restartGame() {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  direction = directions.RIGHT;
-
-  snake = [
-    { x: 30, y: 10 },
-    { x: 20, y: 10 },
-    { x: 10, y: 10 },
-  ];
-
-  apples = [];
-  score = 0;
+  currentState = getInitialState();
   allowKeyPress = true;
 
-  initGame();
-
-  moveSnakeInterval = setInterval(moveSnake, 100);
-}
-
-function initGame() {
   addNewApple();
   drawApple();
   drawSnake();
-}
 
+  moveSnakeInterval = setInterval(moveSnake, 100);
+}
 
 function moveSnake() {
   if (boundaryExceeded()) {
@@ -91,7 +92,7 @@ function moveSnake() {
   if (reachedApple(newSnakeHead)) {
     eatApple();
     updateScore();
-    snake.unshift(newSnakeHead);
+    currentState.snake.unshift(newSnakeHead);
     setTimeout(addNewApple, 500);
   }
 
@@ -113,14 +114,18 @@ function gameOver() {
 
 function showGameOverScreen() {
   gameOverElement.style.display = 'block';
+  gameOverElement.children.currentScore.innerHTML = 'Your score: ' + currentState.score;
+  gameOverElement.children.highScore.innerHTML = 'Highscore: ' + getHighScore();
 }
 
 function reachedApple(newSnakeHead) {
+  let {apples} = currentState;
+
   return apples[0] !== undefined && newSnakeHead.x === apples[0].x && newSnakeHead.y === apples[0].y;
 }
 
 function boundaryExceeded() {
-  var snakeHeadToBeDrawn = snake[0];
+  var snakeHeadToBeDrawn = currentState.snake[0];
 
   if (snakeHeadToBeDrawn.x < 0 || snakeHeadToBeDrawn.x >= canvas.width) {
     return true;
@@ -135,6 +140,7 @@ function boundaryExceeded() {
 
 function selfCollided() {
   const newSnakeHead = getNewSnakeHead();
+  let {snake} = currentState;
 
   for (let i = 0; i < snake.length; i++) {
     const snakePart = snake[i];
@@ -150,7 +156,7 @@ function selfCollided() {
 function drawApple() {
   ctx.fillStyle = 'black';
 
-  apples.forEach(apple => {
+  currentState.apples.forEach(apple => {
     ctx.fillRect(apple.x, apple.y, w, h);
   });
 }
@@ -159,7 +165,7 @@ function addNewApple() {
   let x = getRandomInt(canvas.width / w) * w;
   let y = getRandomInt(canvas.height / h) * h;
 
-  apples.push({ x: x, y: y });
+  currentState.apples.push({ x: x, y: y });
 }
 
 function getRandomInt(max) {
@@ -170,19 +176,20 @@ function drawSnake() {
   ctx.fillStyle = 'rgb(200, 0, 0)';
   ctx.strokeStyle = 'black';
 
-  snake.forEach(element => {
+  currentState.snake.forEach(element => {
     ctx.fillRect(element.x, element.y, w, h);
     ctx.strokeRect(element.x, element.y, w, h);
   });
 }
 
 function updateSnakePosition(newSnakeHead) {
-  snake.unshift(newSnakeHead);
-  snake.pop();
+  currentState.snake.unshift(newSnakeHead);
+  currentState.snake.pop();
 }
 
 function getNewSnakeHead() {
-  var currentHead = snake[0];
+  var currentHead = currentState.snake[0];
+  let {direction} = currentState;
 
   if (direction === directions.RIGHT) {
     var newSnakeX = currentHead.x + w;
@@ -204,21 +211,20 @@ function getNewSnakeHead() {
 }
 
 function eatApple() {
-  const apple = apples.pop();
+  const apple = currentState.apples.pop();
 
   ctx.clearRect(apple.x, apple.y, w, h);
 }
 
 function updateScore() {
-  score += 10;
+  currentState.score += 10;
 
-  if (score > localStorage.getItem('highScore')) {
-    localStorage.setItem('highScore', score);
-  }
+  if (currentState.score > getHighScore()) setHighScore(score);
+
 }
 
 function movementInSameAxis(keyCode) {
-  return whichAxis(keyCode) === whichAxis(direction);
+  return whichAxis(keyCode) === whichAxis(currentState.direction);
 }
 
 function whichAxis(directionKeyCode) {
@@ -256,6 +262,6 @@ document.onkeydown = function (event) {
       return;
     }
 
-    direction = keyCode;
+    currentState.direction = keyCode;
   }
 }
