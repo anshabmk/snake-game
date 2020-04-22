@@ -5,15 +5,14 @@
   <title>Snake Game</title>
   <link rel="stylesheet" href="assets/stylesheets/main.css">
 </head>
-<body>
+<body onload="checkBrowserSupport();">
   <div class="container">
 
     <div id="gameMenu" class="menu">
 
       <h1>Snake Game</h1>
       <ul>
-        <li><a class="btn" href="javascript:startGame();">Start Game</a></li>
-        <li><a class="btn" href="javascript:void(0);">Credits</a></li>
+        <li><a id="startGameButton" class="btn" href="#">Start Game</a></li>
       </ul>
 
     </div>
@@ -22,7 +21,7 @@
 
       <h1>Game Over!</h1>
       <ul>
-        <li><a class="btn" href="javascript:restartGame();">Try Again</a></li>
+        <li><a id="restartGameButton" class="btn" href="#">Try Again</a></li>
       </ul>
 
     </div>
