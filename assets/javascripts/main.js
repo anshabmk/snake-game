@@ -1,72 +1,36 @@
 'use strict';
 
-var gameMenu = document.getElementById('gameMenu');
+var canvas = document.getElementById('gameCanvas');
+var ctx = this.canvas.getContext('2d');
+var allowKeyPress = false;
+var moveSnakeInterval;
+var w = 10;
+var h = 10;
+
+var directions = {
+  LEFT: 37,
+  UP: 38,
+  RIGHT: 39,
+  DOWN: 40,
+};
+
+var direction = this.directions.RIGHT;
+
+var snake = [
+  { x: 30, y: 10 },
+  { x: 20, y: 10 },
+  { x: 10, y: 10 },
+];
+
+var apples = [];
+var score = 0;
 var gameOverElement = document.getElementById('gameOver');
 
-var moveSnakeInterval;
+setHighScore();
+initGame();
 
-function restartGame() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  gameOverElement.style.display = 'none';
-}
-
-function startGame() {
-  gameMenu.style.display = 'none';
-
-  moveSnakeInterval = setInterval(moveSnake, 100);
-
-  document.onkeydown = function (event) {
-    var keyCode = event.keyCode;
-
-    var directionKeyCodes = [
-      directions.LEFT,
-      directions.RIGHT,
-      directions.UP,
-      directions.DOWN,
-    ];
-
-    if (directionKeyCodes.includes(keyCode)) {
-      if (movementInSameAxis(keyCode)) {
-        return;
-      }
-
-      direction = keyCode;
-    }
-  }
-}
-
-var canvas = document.getElementById('gameCanvas');
-
-if (canvas.getContext) {
-  setHighScore();
-
-  var ctx = canvas.getContext('2d');
-
-  var w = 10;
-  var h = 10;
-
-  var directions = {
-    LEFT: 37,
-    UP: 38,
-    RIGHT: 39,
-    DOWN: 40,
-  };
-
-  var direction = directions.RIGHT;
-
-  var snake = [
-    { x: 30, y: 10 },
-    { x: 20, y: 10 },
-    { x: 10, y: 10 },
-  ];
-
-  var apples = [];
-  var score = 0;
-
-  addNewApple();
-  drawApple();
-  drawSnake();
+function checkBrowserSupport() {
+  if (!canvas.getContext) alert('Incompatible browser');
 }
 
 function setHighScore() {
@@ -76,6 +40,42 @@ function setHighScore() {
     localStorage.setItem('highScore', '0');
   }
 }
+
+function startGame() {
+  let gameMenu = document.getElementById('gameMenu');
+  gameMenu.style.display = 'none';
+  allowKeyPress = true;
+  moveSnakeInterval = setInterval(moveSnake, 100);
+}
+
+function restartGame() {
+  gameOverElement.style.display = 'none';
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  direction = directions.RIGHT;
+
+  snake = [
+    { x: 30, y: 10 },
+    { x: 20, y: 10 },
+    { x: 10, y: 10 },
+  ];
+
+  apples = [];
+  score = 0;
+  allowKeyPress = true;
+
+  initGame();
+
+  moveSnakeInterval = setInterval(moveSnake, 100);
+}
+
+function initGame() {
+  addNewApple();
+  drawApple();
+  drawSnake();
+}
+
 
 function moveSnake() {
   if (boundaryExceeded()) {
@@ -107,6 +107,7 @@ function moveSnake() {
 
 function gameOver() {
   clearInterval(moveSnakeInterval);
+  allowKeyPress = false;
   showGameOverScreen();
 }
 
@@ -227,5 +228,34 @@ function whichAxis(directionKeyCode) {
     return axes.X;
   } else {
     return axes.Y;
+  }
+}
+
+document.getElementById('startGameButton').addEventListener('click', function () {
+  startGame();
+});
+
+document.getElementById('restartGameButton').addEventListener('click', function () {
+  restartGame();
+})
+
+document.onkeydown = function (event) {
+  if (!allowKeyPress) return;
+
+  var keyCode = event.keyCode;
+
+  var directionKeyCodes = [
+    directions.LEFT,
+    directions.RIGHT,
+    directions.UP,
+    directions.DOWN,
+  ];
+
+  if (directionKeyCodes.includes(keyCode)) {
+    if (movementInSameAxis(keyCode)) {
+      return;
+    }
+
+    direction = keyCode;
   }
 }
